@@ -1,3 +1,10 @@
+* 0.31
+  * libclang
+  * core::sum() → core::sum_elems()
+  * cv_return_value → Result
+  * _ref → ref_
+  * VectorOfuchar → VectorOfu8
+
 * 0.30
   * data_typed() and data_typed_mut() now do is_continuous() check
 

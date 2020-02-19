@@ -3,7 +3,6 @@ os:
   - windows
   - osx
 
-sudo: true
 dist: bionic
 osx_image: xcode11.2
 
@@ -20,7 +19,7 @@ rust:
   - beta
 #  - nightly
 
-matrix:
+jobs:
   allow_failures:
     - rust: nightly
   fast_finish: true
@@ -32,49 +31,11 @@ matrix:
 env:
   global:
     - Atlas_ROOT_DIR=/usr/include/ # for cmake to find lapacke.h
-  matrix:
+    - RUST_TOOLCHAIN=$TRAVIS_RUST_VERSION
+    - OS_FAMILY=$TRAVIS_OS_NAME
+  jobs:
     - OPENCV_VERSION=3.4.9 CHOCO_OPENCV_VERSION=3.4.8 OSX_OPENCV_VERSION=@3 CARGO_FEATURES=opencv-34
     - OPENCV_VERSION=4.2.0 CHOCO_OPENCV_VERSION=4.1.2 OSX_OPENCV_VERSION= CARGO_FEATURES=opencv-4
-
-addons:
-  apt:
-    packages:
-      - build-essential
-      - pkg-config
-      - wget
-      - cmake
-      - libatlas-base-dev
-      - libavcodec-dev
-      - libavformat-dev
-      - libavresample-dev
-      - libceres-dev
-      - libdc1394-22-dev
-      - libeigen3-dev
-      - libfreetype6-dev
-      - libgdal-dev
-      - libgflags-dev
-      - libgoogle-glog-dev
-      - libgphoto2-dev
-      - libgstreamer-plugins-base1.0-dev
-      - libharfbuzz-dev
-      - libhdf5-dev
-      - libjpeg-dev
-      - liblapacke-dev
-      - libleptonica-dev
-      - libopenexr-dev
-      - libpng-dev
-      - libswscale-dev
-      - libtbb-dev
-      - libtesseract-dev
-      - libtiff-dev
-      - libvtk7-dev
-      - libwebp-dev
-      - qtbase5-dev
-      - tree
-
-before_cache:
-  # https://stackoverflow.com/a/53331571/1433768
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then brew cleanup; fi
 
 install:
   - ci/install.sh

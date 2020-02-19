@@ -8,6 +8,8 @@ Experimental Rust bindings for OpenCV 3 and 4.
 
 The API is usable but unstable and not very battle-tested; use at your own risk.
 
+todo: rearrange, bugreporting guidelines (-vv, rust_backtrace)
+
 ## API
 
 [API Documentation](https://docs.rs/opencv) is, to varying success,
@@ -64,7 +66,7 @@ Currently the main development and testing of the crate is performed on Linux, b
 major platforms are also supported: Mac OS X and Windows.
 
 Support for Windows is a bit tricky at the moment: you will need to set up `OPENCV_LINK_LIBS`,
-`OPENCV_LINK_PATHS`, `OPENCV_INCLUDE_PATHS` and potentially `OPENCV_PYTHON3_BIN` environment
+`OPENCV_LINK_PATHS` and `OPENCV_INCLUDE_PATHS` environment
 variables. Then build the crate with `buildtime-bindgen` feature enabled. If you get linking
 errors try also building with `--release` flag.
 
@@ -84,8 +86,6 @@ Also refer to the corresponding [issue #6](https://github.com/twistedfall/opencv
 * `buildtime-bindgen` - regenerate all bindings, should only be used during the crate development
   or when building on Windows or Mac OS X, with this feature enabled the bundled headers are no
   longer used for the code generation, the ones from the installed OpenCV are
-* `force-3rd-party-libs-discovery` - legacy feature that enables some additional logic for
-  discovery of dependent libs, should not be needed anymore
 * `docs-only` - internal usage, for building docs on [docs.rs](https://docs.rs/opencv)
 
 ### Functionality
@@ -164,11 +164,6 @@ Path specified by `LD_LIBRARY_PATH` must contain `libopencv_*.so` files.
   variable for that. If you set it pkgconfig will expect to find the file with that name and `.pc` extension
   in the package directory. And vcpkg will use that name to try to find package in `packages` directory under
   `VCPKG_ROOT`. For compatibility reasons `OPENCV_PKGCONFIG_NAME` is also supported as variable name.
-
-* `OPENCV_PYTHON3_BIN`
-  During the build crate uses Python 3 to run header parsing and generation. The binary is usually
-  autodiscovered, but you can use `OPENCV_PYTHON3_BIN` to specify the full path to the binary to
-  invoke. E.g. "/usr/bin/python3" or "C:\Python37\python.exe"
 
 The following variables must be set when building without `pkg_config` or `vcpkg`
 (e.g. on Windows msvc target):

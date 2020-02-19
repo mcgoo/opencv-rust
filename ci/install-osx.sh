@@ -3,4 +3,7 @@
 set -vex
 
 brew unlink python@2
+brew install llvm pkg-config
 brew install opencv"$OSX_OPENCV_VERSION"
+# https://stackoverflow.com/a/53331571/1433768
+#brew cleanup

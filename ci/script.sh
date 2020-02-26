@@ -55,13 +55,3 @@ if [[ "$OS_FAMILY" == "linux" ]]; then
 	cargo test -vv --no-default-features --features "$CARGO_FEATURES"
 	cargo test --release -vv --no-default-features --features "$CARGO_FEATURES"
 fi
-
-# windows (gui?) binaries can't be run in travis:
-# C:/Users/travis/.cargo/bin/cargo.exe: error while loading shared libraries: ?: cannot open shared object file: No such file or directory
-# probably because of:
-# https://travis-ci.community/t/python-and-opencv-dll-load-fails-every-time/4431
-# https://travis-ci.community/t/make-running-gui-apps-available-in-windows/1557
-# that's why we don't run test
-#if [[ "$OS_FAMILY" != "windows" ]]; then
-#cargo test -vv --no-default-features --features "$CARGO_FEATURES"
-#fi

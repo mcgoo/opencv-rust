@@ -7,6 +7,8 @@
 // todo add support for more operators
 // todo add support for arrays in dnn::DictValue
 // todo allow ergonomically combining of enum variants with |
+// todo implement std::pair wrapper
+// todo prevent generation of vector<std::string> in favor of vector<cv::String>>
 
 // copy-pasted form python generator (may be obsolete):
 // fixme returning MatAllocator (trait) by reference is bad, check knearestneighbour

@@ -1,7 +1,7 @@
 name: opencv-rust
 on: [push]
 jobs:
-  test-linux-macosx:
+  linux-macosx:
     runs-on: ${{ matrix.os.image }}
     strategy:
       fail-fast: false
@@ -58,7 +58,7 @@ jobs:
           name: generated-failed-bindings-${{ runner.os }}-${{ matrix.version.opencv }}
           path: bindings
 
-  test-windows:
+  windows:
     runs-on: windows-2019
     strategy:
       fail-fast: false

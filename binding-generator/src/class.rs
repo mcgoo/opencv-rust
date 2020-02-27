@@ -228,9 +228,7 @@ impl<'tu, 'g> Class<'tu, 'g> {
 	pub fn dependent_types(&self) -> Vec<Box<dyn GeneratedElement + 'g>> {
 		self.fields().into_iter()
 			.filter(|f| !f.is_excluded())
-			.map(|f| f.type_ref())
-			.filter(|t| !t.is_ignored())
-			.map(|t| t.dependent_types_with_mode(DependentTypeMode::ForReturn(DefinitionLocation::Module)))
+			.map(|f| f.type_ref().dependent_types_with_mode(DependentTypeMode::ForReturn(DefinitionLocation::Module)))
 			.flatten()
 			.chain(self.methods().into_iter()
 				.filter(|m| !m.is_excluded())

@@ -52,6 +52,7 @@ cargo test -vv --no-default-features --features "$CARGO_FEATURES"
 cargo test --release -vv --no-default-features --features "$CARGO_FEATURES"
 if [[ "$OS_FAMILY" == "linux" ]]; then
 	export CXX=clang++
+	touch build.rs
 	cargo test -vv --no-default-features --features "$CARGO_FEATURES"
 	cargo test --release -vv --no-default-features --features "$CARGO_FEATURES"
 fi

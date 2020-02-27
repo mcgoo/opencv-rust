@@ -57,7 +57,9 @@ impl<'tu> EntityElement<'tu> for Vector<'tu, '_> {
 
 impl Element for Vector<'_, '_> {
 	fn is_ignored(&self) -> bool {
-		DefaultElement::is_ignored(self) || self.element_type().is_ignored()
+		// workaround for race when type with std::string gets generated first
+		// we only want vector<cv::String> because it's more compatible across OpenCV versions
+		DefaultElement::is_ignored(self) || self.element.is_ignored()
 	}
 
 	fn is_system(&self) -> bool {
@@ -144,41 +146,40 @@ impl GeneratedElement for Vector<'_, '_> {
 		);
 
 		let vec_type = self.type_ref();
-		let elem_type = self.element_type();
 		let mut inter_vars = hashmap! {
 			"rust_local" => vec_type.rust_local(),
 			"rust_extern" => vec_type.rust_extern(),
 			"cpp_full" => vec_type.cpp_full(),
 			"cpp_extern" => vec_type.cpp_extern(),
-			"inner_cpp_full" => elem_type.cpp_full(),
-			"inner_cpp_extern" => elem_type.cpp_extern(),
-			"inner_rust_extern" => elem_type.rust_extern(),
-			"inner_rust_local" => elem_type.rust_local(),
-			"inner_canonical_rust_local" => elem_type.canonical().rust_local().into_owned().into(),
-			"inner_rust_full" => elem_type.rust_full(),
-			"rust_return_wrapper_type" => elem_type.rust_extern_return_wrapper_full(),
-			"cpp_return_wrapper_type" => elem_type.cpp_extern_return_wrapper_full(),
+			"inner_cpp_full" => self.element.cpp_full(),
+			"inner_cpp_extern" => self.element.cpp_extern(),
+			"inner_rust_extern" => self.element.rust_extern(),
+			"inner_rust_local" => self.element.rust_local(),
+			"inner_canonical_rust_local" => self.element.canonical().rust_local().into_owned().into(),
+			"inner_rust_full" => self.element.rust_full(),
+			"rust_return_wrapper_type" => self.element.rust_extern_return_wrapper_full(),
+			"cpp_return_wrapper_type" => self.element.cpp_extern_return_wrapper_full(),
 		};
 		let mut vector_methods = String::new();
 		let mut inherent_methods = String::new();
 		let mut impls = String::new();
-		if elem_type.is_by_ptr() {
+		if self.element.is_by_ptr() {
 			vector_methods += &METHODS_BOXED_TPL.interpolate(&inter_vars);
-		} else if elem_type.is_string() {
+		} else if self.element.is_string() {
 			vector_methods += &METHODS_STRING_TPL.interpolate(&inter_vars);
 		} else {
 			vector_methods += &METHODS_NON_BOXED_COMMON_TPL.interpolate(&inter_vars);
-			if elem_type.as_simple_class().is_some() {
+			if self.element.as_simple_class().is_some() {
 				vector_methods += &METHODS_SIMPLE_TPL.interpolate(&inter_vars);
 			} else {
 				vector_methods += &METHODS_NON_BOXED_TPL.interpolate(&inter_vars);
 			}
-			if elem_type.is_copy() && !elem_type.is_bool() {
+			if self.element.is_copy() && !self.element.is_bool() {
 				vector_methods += &METHODS_COPY_NON_BOOL_TPL.interpolate(&inter_vars);
 				inherent_methods += &INHERENT_COPY_NON_BOOL_TPL.interpolate(&inter_vars);
 			}
 		}
-		if settings::DATA_TYPES.contains(elem_type.cpp_full().as_ref()) || elem_type.as_vector().map_or(false, |v| settings::DATA_TYPES.contains(v.element_type().cpp_full().as_ref())) {
+		if settings::DATA_TYPES.contains(self.element.cpp_full().as_ref()) || self.element.as_vector().map_or(false, |v| settings::DATA_TYPES.contains(v.element_type().cpp_full().as_ref())) {
 			impls += &INPUT_OUTPUT_ARRAY_TPL.interpolate(&inter_vars);
 		}
 
@@ -222,36 +223,33 @@ impl GeneratedElement for Vector<'_, '_> {
 		);
 
 		let vec_type = self.type_ref();
-		let elem_type = self.element_type();
 		let mut inter_vars = hashmap! {
 			"rust_local" => vec_type.rust_local(),
 			"cpp_full" => vec_type.cpp_full(),
 			"cpp_extern" => vec_type.cpp_extern(),
-			"inner_cpp_full" => elem_type.cpp_full(),
-			"inner_cpp_extern" => elem_type.cpp_extern(),
-			"cpp_return_wrapper_type" => elem_type.cpp_extern_return_wrapper_full(),
+			"inner_cpp_full" => self.element.cpp_full(),
+			"inner_cpp_extern" => self.element.cpp_extern(),
+			"cpp_return_wrapper_type" => self.element.cpp_extern_return_wrapper_full(),
+			"call_arg" => self.element.cpp_arg_func_call("val").into(),
 		};
 
 		let mut exports = String::new();
-		if elem_type.is_by_ptr() {
+		if self.element.is_by_ptr() {
 			exports += &METHODS_BOXED_TPL.interpolate(&inter_vars);
-		} else if elem_type.is_string() {
+		} else if self.element.is_string() {
 			exports += &METHODS_STRING_TPL.interpolate(&inter_vars);
-			// workaround for race when type with std::string gets generated first
-			// we only want vector<cv::String> because it's more compatible across OpenCV versions
-			inter_vars.insert("cpp_full", "std::vector<cv::String>".into());
 		} else {
 			exports += &METHODS_NON_BOXED_COMMON_TPL.interpolate(&inter_vars);
-			if elem_type.as_simple_class().is_some() {
+			if self.element.as_simple_class().is_some() {
 				exports += &METHODS_SIMPLE_TPL.interpolate(&inter_vars);
 			} else {
 				exports += &METHODS_NON_BOXED_TPL.interpolate(&inter_vars);
 			}
-			if elem_type.is_copy() && !elem_type.is_bool() {
+			if self.element.is_copy() && !self.element.is_bool() {
 				exports += &METHODS_COPY_NON_BOOL_TPL.interpolate(&inter_vars);
 			}
 		}
-		if settings::DATA_TYPES.contains(elem_type.cpp_full().as_ref()) || elem_type.as_vector().map_or(false, |v| settings::DATA_TYPES.contains(v.element_type().cpp_full().as_ref())) {
+		if settings::DATA_TYPES.contains(self.element.cpp_full().as_ref()) || self.element.as_vector().map_or(false, |v| settings::DATA_TYPES.contains(v.element_type().cpp_full().as_ref())) {
 			exports += &INPUT_OUTPUT_ARRAY_TPL.interpolate(&inter_vars);
 		}
 		inter_vars.insert("exports", exports.into());
